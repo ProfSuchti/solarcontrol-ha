@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SolarControl",
+        "description": "Connect Home Assistant to your SolarControl instance. Generate the HA integration key in SolarControl under Settings → System → Home Assistant.",
+        "data": {
+          "url": "SolarControl URL",
+          "integration_key": "HA integration key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the SolarControl URL."
+    },
+    "abort": {
+      "already_configured": "SolarControl is already configured."
+    }
+  }
+}

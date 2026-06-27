@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SolarControl",
+        "description": "Verbinde Home Assistant mit deiner SolarControl-Instanz. Den HA-Integration-Key erzeugst du in SolarControl unter Einstellungen → System → Home Assistant.",
+        "data": {
+          "url": "SolarControl-URL",
+          "integration_key": "HA-Integration-Key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "SolarControl-URL nicht erreichbar."
+    },
+    "abort": {
+      "already_configured": "SolarControl ist bereits konfiguriert."
+    }
+  }
+}
