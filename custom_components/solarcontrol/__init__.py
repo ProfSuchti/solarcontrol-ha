@@ -31,7 +31,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # Bumped to bust the browser cache of the panel module on updates
-PANEL_VERSION = "0.1.1"
+PANEL_VERSION = "0.1.2"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

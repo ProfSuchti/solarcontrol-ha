@@ -58,15 +58,28 @@ class SolarControlPanel extends HTMLElement {
     this._onMessage = this._onMessage.bind(this);
     window.addEventListener("message", this._onMessage);
 
+    // Erfolgreiches Laden des iframes (auch cross-origin) beendet den Watchdog —
+    // unabhängig davon, ob die SPA Anmeldedaten anfragt (z.B. bei bestehender Sitzung
+    // sendet sie kein sc-ha-request).
+    iframe.addEventListener("load", () => this._clearWatchdog());
+
     // ?ha_bridge=1 tells the SPA it runs inside the HA panel
     iframe.src = `${base}/?ha_bridge=1`;
     this.innerHTML = "";
     this.appendChild(iframe);
 
-    // Watchdog: if the SPA never contacts us, the iframe probably failed to load
+    // Watchdog: feuert nur, wenn das iframe gar nicht lädt (z.B. URL unerreichbar,
+    // Mixed Content) — dann erscheint der Diagnose-Hinweis.
     this._watchdog = setTimeout(() => {
       this._showLoadHint(base);
     }, LOAD_TIMEOUT_MS);
+  }
+
+  _clearWatchdog() {
+    if (this._watchdog) {
+      clearTimeout(this._watchdog);
+      this._watchdog = null;
+    }
   }
 
   async _onMessage(event) {
@@ -76,10 +89,7 @@ class SolarControlPanel extends HTMLElement {
 
     if (data.type === REQUEST_TYPE) {
       // The SPA is alive → cancel the load watchdog
-      if (this._watchdog) {
-        clearTimeout(this._watchdog);
-        this._watchdog = null;
-      }
+      this._clearWatchdog();
       await this._sendCredentials();
     } else if (data.type === NAVIGATE_HOME) {
       this._navigateHome();

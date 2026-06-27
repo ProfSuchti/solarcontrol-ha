@@ -1,7 +1,7 @@
 {
   "domain": "solarcontrol",
   "name": "SolarControl",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "documentation": "https://github.com/ProfSuchti/solarcontrol-ha",
   "issue_tracker": "https://github.com/ProfSuchti/solarcontrol-ha/issues",
   "codeowners": ["@ProfSuchti"],
