@@ -1,32 +1,63 @@
 # SolarControl — Home Assistant Integration
 
-Home-Assistant-Integration für [SolarControl](https://github.com/ProfSuchti/solarcontrol)
-(modulares Energiemanagementsystem). Zeigt SolarControl als **Reiter in der HA-Seitenleiste**
-und reicht die HA-Anmeldung (inkl. Admin-Status) an SolarControl durch.
+Bindet [SolarControl](https://github.com/ProfSuchti/solarcontrol) als **Reiter in die
+Home-Assistant-Seitenleiste** ein und reicht die HA-Anmeldung – inklusive Admin-Status – an
+SolarControl durch.
 
-Auf Home Assistant läuft **kein** SolarControl-Backend — die Integration ist eine dünne
-Auth-Brücke und bettet das bestehende SolarControl-Frontend ein, das auf das (entfernte)
-SolarControl-Backend zugreift.
+Auf Home Assistant läuft **kein** SolarControl-Backend. Die Integration ist eine schlanke
+Anmeldebrücke: Sie bettet das bestehende SolarControl-Frontend (von der konfigurierten URL) in
+ein iframe ein und meldet den eingeloggten HA-Nutzer automatisch an. Da das iframe direkt von der
+SolarControl-URL lädt, sind Frontend und Backend same-origin – **kein CORS nötig**.
 
-> ⚠️ **Status:** Gerüst / in Entwicklung. Die Anmeldebrücke und das Panel werden in Kürze
-> ergänzt (Phase 3). Aktuell noch nicht funktionsfähig.
+## Funktionsweise
 
-## Funktionsweise (geplant)
-
-1. SolarControl erzeugt einen **HA-Integration-Key** (Settings → System → Home Assistant).
-2. Diese Integration wird mit **Backend-URL + Key** konfiguriert.
-3. Eingeloggte HA-Nutzer öffnen den Reiter „SolarControl"; die Integration signiert ein
-   kurzlebiges Identitäts-Token (inkl. `is_admin`), SolarControl stellt daraus eine Sitzung aus.
-4. HA-Admins werden in SolarControl zu Admins; alle anderen standardmäßig zu „viewer"
-   (pro Nutzer in SolarControl unter `/users` anpassbar).
+1. In **SolarControl** → Einstellungen → System → **Home Assistant** → *SolarControl-Panel*:
+   einen **Integration-Key** erzeugen und die **Panel-Anmeldung aktivieren**.
+2. Diese Integration in HA mit **SolarControl-URL + Key** einrichten.
+3. Eingeloggte HA-Nutzer öffnen den Reiter **„SolarControl"**. Die Integration signiert ein
+   kurzlebiges Identitäts-Token (inkl. `is_admin`) und reicht es per `postMessage` an die SPA;
+   SolarControl stellt daraus eine Sitzung aus.
+4. **HA-Admins** werden in SolarControl zu **Admins**, alle anderen erhalten die eingestellte
+   Standard-Rolle (Default `viewer`). Rollen einzelner Nutzer lassen sich in SolarControl unter
+   **Benutzer** dauerhaft überschreiben.
+5. **Zurück zu HA:** oben in der SolarControl-Seitenleiste der Eintrag **„‹ Home Assistant"**.
 
 ## Installation (HACS)
 
 1. HACS → ⋮ → **Custom repositories**
 2. URL: `https://github.com/ProfSuchti/solarcontrol-ha` · Kategorie: **Integration**
-3. „SolarControl" installieren → Home Assistant neu starten
+3. „SolarControl" installieren → **Home Assistant neu starten**
 4. **Einstellungen → Geräte & Dienste → Integration hinzufügen → SolarControl**
-   → Backend-URL und HA-Integration-Key eintragen
+   → **SolarControl-URL** und **HA-Integration-Key** eintragen
+
+## Konfiguration
+
+| Feld | Bedeutung |
+|------|-----------|
+| **SolarControl-URL** | Web-Adresse, unter der du SolarControl im Browser öffnest (z. B. `https://solar.example.de`). Muss **vom Browser und von HA** erreichbar sein. |
+| **HA-Integration-Key** | In SolarControl unter Einstellungen → System → Home Assistant erzeugt. |
+
+## ⚠️ HTTPS / Mixed Content
+
+Läuft **Home Assistant über HTTPS**, muss die **SolarControl-URL ebenfalls über HTTPS** (mit
+gültigem Zertifikat) erreichbar sein – sonst blockiert der Browser das iframe
+(*„Laden von gemischten aktiven Inhalten … blockiert"*), und das Panel bleibt leer.
+
+- Am einfachsten SolarControl über **denselben Reverse Proxy / dieselbe Domain** wie HA
+  bereitstellen (z. B. Caddy, Nginx Proxy Manager, Traefik) → gültiges Zertifikat.
+- **Selbst-signierte Zertifikate** funktionieren in iframes **nicht** zuverlässig (der
+  Zertifikatsdialog erscheint im iframe nicht).
+- Zum schnellen Testen: HA im Browser ausnahmsweise über **HTTP** aufrufen, dann ist auch ein
+  HTTP-iframe erlaubt. Die HA-Companion-App nutzt meist die lokale HTTP-Adresse und funktioniert
+  daher auch mit einer HTTP-SolarControl-URL.
+
+Lädt das Panel nicht, zeigt es nach einigen Sekunden einen Diagnose-Hinweis (inkl.
+Mixed-Content-Erkennung) statt eines leeren Bildschirms.
+
+## Voraussetzungen
+
+- SolarControl mit aktivierter HA-Bridge (Einstellungen → System → Home Assistant)
+- Home Assistant **2024.7** oder neuer
 
 ## Lizenz
 
